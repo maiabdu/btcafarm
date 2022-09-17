@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor:  Color.fromRGBO(221, 225, 249, 1),
+        scaffoldBackgroundColor: Color.fromRGBO(221, 225, 249, 1),
         primaryColor: const Color.fromRGBO(94, 80, 201, 1),
         // primarySwatch: const Color.fromRGBO(94, 80, 201, 1),
         // primarySwatch:   Color.fromRGBO(94, 80, 201, 1),
@@ -39,7 +39,6 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-
       ),
       // darkTheme: ThemeData.dark(),
       // themeMode: ThemeMode.system,
@@ -49,7 +48,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key,}) : super(key: key);
+  const MyHomePage({
+    Key? key,
+  }) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -60,16 +61,11 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
-
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -81,69 +77,82 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         appBar: appBarDefault(context),
-
         body: ListView(
-          children:  [
-        ListTile(
-          leading: IconButton(
-        onPressed:(){},
-        icon:Icon(Icons.account_balance_wallet),
-        color:Theme.of(context).primaryColor,),// Icon
+          children: [
+            ListTile(
+              leading: IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.account_balance_wallet),
+                color: Theme.of(context).primaryColor,
+              ), // Icon
 
-        title: Text('bc1qxy2kgdygjrsqtzq2n0yrf2493',style:TextStyle(
-            color:Theme.of(context).primaryColor,
-            fontSize:15,
-            fontWeight:FontWeight.w400
-        ),// TextStyle
-        ),// Text
-        subtitle:Padding(
-          padding:const EdgeInsets.only(top:1.0),
-          child:Text('BTCA Wallet Address',style:TextStyle(
-              color:Theme.of(context).primaryColor,
-              fontSize:10
-          ),
-          ),// TextStyle,Text
-        ),// Padding
-        trailing:IconButton(
-          onPressed:(){
-            share();
-          },
-          icon:Icon(Icons.share_outlined),
-            color:Theme.of(context).primaryColor,),// Icon
-        ),// IconButton
+              title: Text(
+                'bc1qxy2kgdygjrsqtzq2n0yrf2493',
+                style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400), // TextStyle
+              ), // Text
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 1.0),
+                child: Text(
+                  'BTCA Wallet Address',
+                  style: TextStyle(
+                      color: Theme.of(context).primaryColor, fontSize: 10),
+                ), // TextStyle,Text
+              ), // Padding
+              trailing: IconButton(
+                onPressed: () {
+                  share();
+                },
+                icon: Icon(Icons.share_outlined),
+                color: Theme.of(context).primaryColor,
+              ), // Icon
+            ), // IconButton
 
-            const SizedBox(height: 10,),
-            Padding(
-            padding:const EdgeInsets.symmetric(horizontal:20),
-
-               child: Row(
-    mainAxisAlignment:MainAxisAlignment.spaceBetween,
-    crossAxisAlignment:CrossAxisAlignment.start,
-              children: <Widget>[
-                MenuBar(title: 'Balance',),
-                SizedBox(width: 12,),
-                MenuBar(title: 'Frozen',),
-              ],
+            const SizedBox(
+              height: 10,
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  MenuBar(
+                    title: 'Balance',
+                  ),
+                  SizedBox(
+                    width: 12,
+                  ),
+                  MenuBar(
+                    title: 'Frozen',
+                  ),
+                ],
+              ),
             ),
 
             const Padding(
-               padding:  EdgeInsets.symmetric(vertical: 32.0, horizontal: 20),
-               child: CardChart(),
-             ),
+              padding: EdgeInsets.symmetric(vertical: 32.0, horizontal: 20),
+              child: CardChart(),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                BottomCircle(icon: CupertinoIcons.arrow_up_right_circle, onTap: (){
-                   push(context, SendBTCA());
-                },),
-                BottomCircle(icon: CupertinoIcons.arrow_down_left_circle, onTap: (){
-                  push(context, ReceiveBTCA());
-                },)
+                BottomCircle(
+                  icon: CupertinoIcons.arrow_up_right_circle,
+                  onTap: () {
+                    push(context, SendBTCA());
+                  },
+                ),
+                BottomCircle(
+                  icon: CupertinoIcons.arrow_down_left_circle,
+                  onTap: () {
+                    push(context, ReceiveBTCA());
+                  },
+                )
               ],
             )
-
-
           ],
         ),
 
