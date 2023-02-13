@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../api/apihelpers.dart';
@@ -15,6 +14,7 @@ class _ReceiveBTCAState extends State<ReceiveBTCA> {
   final textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    var Get = MediaQuery.of(context).size;
     return Scaffold(
 
       appBar: AppBar(

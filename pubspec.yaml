@@ -1,5 +1,5 @@
 name: btcafarm
-description: BTCA FARM APP
+description: BTCA Wallet APP
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ">=2.16.1 <3.0.0"
@@ -34,23 +34,38 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 1.0.2
-  get: ^4.6.5
   google_fonts: ^3.0.1
   charts_flutter: ^0.12.0
   flutter_share: ^2.0.0
   crypto_font_icons: ^1.0.1
-  document_picker: ^0.0.5
+  # document_picker: ^0.0.5
   qr_flutter: ^4.0.0
-  qr_code_scanner: ^0.7.0
-  barcode_scan:
+  qr_code_scanner: ^1.0.1
+  # barcode_scan:
   otp_screen:
   platform_settings_ui: ^0.1.2
+  introduction_screen: ^3.1.4
+  kdgaugeview: ^1.0.4
+  http: ^0.13.5
+  shared_preferences: ^2.0.15
+  flutter_launcher_icons: ^0.11.0
+  # image_cropper: ^ 3.0.1
 #  permission_handler: ^9.2.0
 #  TODO: upgrade flutter, change sdk and upgrade qr_scanner to 1.0
 #  mobile_scanner: ^1.1.1
 #  flutter_barcode_sdk: ^2.0.3
 #  qr_code_scanner: ^0.7.0
 
+flutter_icons:
+  image_path: "assets/img/btcafarm-icon.png"
+  # image_path_android: "assets/images/icon-710x599-android.png"
+  # image_path_ios: "assets/images/icon-1024x1024.png"
+  android: true # can specify file name here e.g. "ic_launcher"
+  ios: true # can specify file name here e.g. "My-Launcher-Icon"
+  adaptive_icon_background: "assets/img/btcafarm-icon.png" # only available for Android 8.0 devices and above
+  adaptive_icon_foreground: "assets/img/btcafarm-icon.png" # only available for Android 8.0 devices and above
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  remove_alpha_ios: true
 
 dev_dependencies:
   flutter_test:

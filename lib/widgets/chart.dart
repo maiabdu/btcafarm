@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 import 'line_chart.dart';
@@ -15,6 +14,7 @@ class _CardChartState extends State<CardChart> {
   String? value = '1W';
   @override
   Widget build(BuildContext context) {
+    var Get = MediaQuery.of(context).size;
    return AnimatedContainer(
       duration: Duration(milliseconds: 250),
       width:Get.width,
@@ -27,7 +27,7 @@ class _CardChartState extends State<CardChart> {
                 Color.fromRGBO(223, 228, 250, 1),
                 Color.fromRGBO(241, 243, 255, 1),
                 Color.fromRGBO(241, 243, 255, 1),
-              ]
+              ],
           ),
           borderRadius: const BorderRadius.all(Radius.elliptical(30, 25)),
           boxShadow: [

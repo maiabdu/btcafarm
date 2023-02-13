@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
 
 
 class BottomCircle extends StatefulWidget {
@@ -21,6 +20,7 @@ class _BottomCircleState extends State<BottomCircle> {
 
   @override
   Widget build(BuildContext context) {
+    var Get = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: widget.onTap,
       // onTapDown: (e){onPressed();},

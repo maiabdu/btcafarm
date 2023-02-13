@@ -35,18 +35,19 @@ class _QrScanState extends State<QrScan> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
+    return Scaffold(
       body: Stack(
         alignment: Alignment.center,
         children: [
+          const SizedBox(height: 50,),
           // BuildQrView(context),
           BuildQrView(context),
-          Positioned(top: 20, child: builResult()),
+          Positioned(top: 60, child: builResult()),
           Positioned(bottom: 40, child: buildControlsButtom()),
 
         ],
       ),
-    ));
+    );
   }
 
   Widget buildControlsButtom() => Container(
@@ -92,12 +93,15 @@ class _QrScanState extends State<QrScan> {
       color: Theme.of(context).primaryColor.withOpacity(.7),
       
     ),
-    child: Row(
-      children: [
-          Image.asset('assets/img/btca1.png', width: 35,),
-        Text(
-          barcode != null ? 'BTCA ADDRESS: {$barcode!.code}' : 'SCAN BTCA ADDRESS', maxLines: 3 , style: TextStyle(color: Colors.white),),
-      ],
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+      child: Row(
+        children: [
+            Image.asset('assets/img/btca1.png', width: 35,),
+          Text(
+            barcode != null ? 'BTCA ADDRESS: {$barcode!.code}' : 'SCAN BTCA ADDRESS', maxLines: 3 , style: TextStyle(color: Colors.white),),
+        ],
+      ),
     ),
   );
 

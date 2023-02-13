@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class MenuBar extends StatefulWidget {
+class MenuItem extends StatelessWidget {
   final String title;
-  const MenuBar({Key? key, required this.title})
+  final String val;
+  const MenuItem({Key? key, required this.title, required this.val})
       : super(
           key: key,
         );
   @override
-  _MenuBarState createState() => _MenuBarState();
-}
-
-class _MenuBarState extends State<MenuBar> {
-  @override
   Widget build(BuildContext context) {
+    var Get = MediaQuery.of(context).size;
     return AnimatedContainer(
-      duration: Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 250),
       width: Get.width * 0.42,
       height: 150,
       decoration: BoxDecoration(
@@ -57,10 +53,10 @@ class _MenuBarState extends State<MenuBar> {
                     ),
                   ),
                   Text(
-                    widget.title,
+                    title,
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                   )
@@ -73,10 +69,10 @@ class _MenuBarState extends State<MenuBar> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '0',
+                      val,
                       style: TextStyle(
                         color: Theme.of(context).primaryColor,
-                        fontSize: 30,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
