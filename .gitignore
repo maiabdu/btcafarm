@@ -11,6 +11,7 @@
 
 # IntelliJ related
 *.iml
+*.jks
 *.ipr
 *.iws
 .idea/
@@ -44,3 +45,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+.app/upload-keystore.jks
+
+# FVM Version Cache
+.fvm/

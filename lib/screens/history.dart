@@ -1,4 +1,4 @@
-import 'package:btcafarm/models/miningmode.dart';
+import 'package:kadpilgrims/models/miningmode.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -61,7 +61,7 @@ class _HistoryState extends State<History> {
 
         ],
       ),
-      bottomNavigationBar: BottomBar(user: widget.user, minningData: widget.mininingData,),
+      bottomNavigationBar: BottomBar(),
     );
   }
 }

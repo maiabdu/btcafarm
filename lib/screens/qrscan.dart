@@ -10,8 +10,6 @@ class QrScan extends StatefulWidget {
   _QrScanState createState() => _QrScanState();
 }
 
-
-
 class _QrScanState extends State<QrScan> {
   final qrKey = GlobalKey(debugLabel: 'QR');
   QRViewController? controller;
@@ -39,86 +37,100 @@ class _QrScanState extends State<QrScan> {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          const SizedBox(height: 50,),
+          const SizedBox(
+            height: 50,
+          ),
           // BuildQrView(context),
           BuildQrView(context),
           Positioned(top: 60, child: builResult()),
           Positioned(bottom: 40, child: buildControlsButtom()),
-
         ],
       ),
     );
   }
 
   Widget buildControlsButtom() => Container(
-     padding: EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-      color: Theme.of(context).primaryColor.withOpacity(.7),
-      
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        IconButton(
-        icon: FutureBuilder<bool?>(
-          future: controller?.getFlashStatus(),
-        builder: (context, snapshot){
-          if(snapshot.data != null){
-            return const Icon(Icons.flash_off, color: Colors.white,);
-          }else{
-            return Container();
-          }
-        },
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Theme.of(context).primaryColor.withOpacity(.7),
         ),
-        onPressed: () async {
-          await controller?.toggleFlash();
-          setState(() {});
-        },
-
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            IconButton(
+              icon: FutureBuilder<bool?>(
+                future: controller?.getFlashStatus(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return const Icon(
+                      Icons.flash_off,
+                      color: Colors.white,
+                    );
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+              onPressed: () async {
+                await controller?.toggleFlash();
+                setState(() {});
+              },
+            ),
+            IconButton(
+                onPressed: () async {
+                  await controller?.flipCamera();
+                },
+                icon: Icon(
+                  Icons.switch_camera_outlined,
+                  color: Colors.white,
+                ))
+          ],
         ),
-        
-        IconButton(onPressed: () async {await controller?.flipCamera();}, icon: Icon(Icons.switch_camera_outlined, color: Colors.white,))
+      );
 
-
-    ],),
-  );
- 
   Widget builResult() => Container(
-    padding: EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-      color: Theme.of(context).primaryColor.withOpacity(.7),
-      
-    ),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18.0),
-      child: Row(
-        children: [
-            Image.asset('assets/img/btca1.png', width: 35,),
-          Text(
-            barcode != null ? 'BTCA ADDRESS: {$barcode!.code}' : 'SCAN BTCA ADDRESS', maxLines: 3 , style: TextStyle(color: Colors.white),),
-        ],
-      ),
-    ),
-  );
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Theme.of(context).primaryColor.withOpacity(.7),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          child: Row(
+            children: [
+             const Icon(
+                Icons.qr_code_2_outlined,
+                color: Colors.white,
+              ),
+              Text(
+                barcode != null
+                    ? 'PILGRIM: {$barcode!.code}'
+                    : 'SCAN PILGRIM QR Code',
+                maxLines: 3,
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+      );
 
   Widget BuildQrView(BuildContext context) => QRView(
-    key: qrKey,
-    onQRViewCreated: onQRViewCreated,
-    overlay: QrScannerOverlayShape(
-      cutOutSize: MediaQuery.of(context).size.width * .8,
-      borderWidth: 15,
-      borderLength: 15,
-      borderColor: Theme.of(context).primaryColor,
-      borderRadius: 14
-    ),
-    );
+        key: qrKey,
+        onQRViewCreated: onQRViewCreated,
+        overlay: QrScannerOverlayShape(
+            cutOutSize: MediaQuery.of(context).size.width * .8,
+            borderWidth: 15,
+            borderLength: 15,
+            borderColor: Theme.of(context).primaryColor,
+            borderRadius: 14),
+      );
 
-      void onQRViewCreated(QRViewController controller){
-        setState(()=> this.controller = controller);
-        controller.scannedDataStream.listen((barcode)=>setState(() => this.barcode = barcode));
-      }
+  void onQRViewCreated(QRViewController controller) {
+    setState(() => this.controller = controller);
+    controller.scannedDataStream
+        .listen((barcode) => setState(() => this.barcode = barcode));
+  }
 }

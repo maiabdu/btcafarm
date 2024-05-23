@@ -1,4 +1,4 @@
-import 'package:btcafarm/models/miningmode.dart';
+import 'package:kadpilgrims/models/miningmode.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 

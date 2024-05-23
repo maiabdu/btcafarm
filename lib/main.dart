@@ -1,4 +1,5 @@
-import 'package:btcafarm/screens/onboardingscreen.dart';
+import 'package:kadpilgrims/screens/auth/authscree.dart';
+import 'package:kadpilgrims/screens/onboardingscreen.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
@@ -22,8 +23,8 @@ class _MyAppState extends State<MyApp> {
         scaffoldBackgroundColor: Color.fromRGBO(221, 225, 249, 1),
         primaryColor: const Color.fromRGBO(94, 80, 201, 1),
       ),
-      home: Onbradingscreens(),
-      // home: const MyHomePage(),
+      // home: Onbradingscreens(),
+      home:  MyLogin(),
     );
   }
 }

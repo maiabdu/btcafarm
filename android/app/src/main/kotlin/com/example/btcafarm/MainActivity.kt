@@ -1,4 +1,4 @@
-package com.example.btcafarm
+package com.example.kadpilgrims
 
 import io.flutter.embedding.android.FlutterActivity
 

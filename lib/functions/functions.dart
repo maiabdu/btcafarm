@@ -1,17 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:btcafarm/models/miningmode.dart';
+import 'package:dio/dio.dart';
+import 'package:kadpilgrims/models/miningmode.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kadpilgrims/models/operationsusermodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
+import '../models/btadashboardmodel.dart';
+import '../models/hotelModel.dart';
 import '../models/usermodel.dart';
 import '../screens/homescreen/homescreen.dart';
+import '../screens/homescreen/operationsHomescree.dart';
 import '../widgets/dialogue.dart';
 import 'package:http/http.dart' as http;
 
+// import 'package:intent/intent.dart' as android_intent;
+// import 'package:intent/extra.dart' as android_extra;
+// import 'package:intent/typedExtra.dart' as android_typedExtra;
+// import 'package:intent/action.dart' as android_action;
+
+final dio = Dio();
+String baseUrl = 'http://10.0.2.2:80/kaduna pilgrim/api';
+
 void push(BuildContext context, Widget widget) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
+}
+
+pushwithcallback(BuildContext context, Widget widget) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
 }
 
@@ -228,6 +246,36 @@ String? validateEmail(String? value) {
   }
 }
 
+String? validateHajjId(String? value) {
+  if (value == '' || value == null) {
+    return 'Invalid Hajj ID/Pilgrims ID please input valid Hajj ID/Pilgrims ID';
+  } else if (value.length < 7) {
+    return 'Hajj ID/Pilgrims ID must be atleast 7 characters';
+  } else {
+    return null;
+  }
+}
+
+String? minimum3(String? value) {
+  if (value == '' || value == null) {
+    return 'bus name cannot be empty';
+  } else if (value.length < 3) {
+    return 'character must be atleast 3 characters';
+  } else {
+    return null;
+  }
+}
+
+String? validateUsername(String? value) {
+  if (value == '' || value == null) {
+    return 'Username Cannot be empty';
+  } else if (value.length < 3) {
+    return 'Username cannot be lessthan three characters';
+  } else {
+    return null;
+  }
+}
+
 String? validatePassword(String? value) {
   if ((value?.length ?? 0) < 6) {
     return 'Password Lenght must be atleast 6';
@@ -270,16 +318,13 @@ loginWithEmail(String? email, String? password, BuildContext context) async {
         debugPrint('user found');
         User user = User.fromJson(userData);
 
-        MininingData userminingDatag = await getMiningData(user.userId);
-        // MininingData userminingData = MininingData.fromJson(mining);
-        debugPrint(userminingDatag.packageName);
+        debugPrint(user.fullName);
 
         await hideProgress();
         push(
             context,
             MyHomePage(
               user: user,
-              miningData: userminingDatag,
             ));
         return true;
         // return user;
@@ -306,37 +351,719 @@ loginWithEmail(String? email, String? password, BuildContext context) async {
   }
 }
 
-//get mining data
-Future getMiningData(String? userid) async {
-  debugPrint('starting api coall');
-  String? endpoint =
-      "http://www.btcafarm.com/includes/mobileApi.php?userID=$userid&getMiningData=true";
-      // "http://localhost/btcafarm-2/includes/mobileApi.php?userID=$userid&getMiningData=true";
+//login with hajj id loginwithHajjID
+loginwithHajjID(String? email, BuildContext context) async {
+  // Timer.periodic(const Duration(seconds: 2), (timer) {
+  //   debugPrint(timer.tick.toString());
+  // });
+
+  String endpoint = "$baseUrl/getpilgrim.php";
+
+  Map<String, dynamic> data = {
+    "pilgrimID": email.toString().trim(),
+  };
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
 
   try {
-    final response = await http.get(Uri.parse(endpoint));
-    debugPrint((response.body));
-    debugPrint((response.statusCode.toString()));
-    if (response.statusCode.toString() == '200') {
-      var miningDat = jsonDecode(response.body);
-      Map miningData = miningDat.asMap();
-      print(miningData);
-      print(miningData[0]['packageName']);
-      print(miningData[0]['minnedThisMonth']);
-      print(miningData[0]['minnedToday']);
-      print(miningData[0]['maxLoad']);
-      print(miningData[0]['monthRemaining']);
-      print(miningData[0]["success"].toString());
+    debugPrint(endpoint);
+    debugPrint(data.toString());
 
-      // debugPrint('Minining data ');
-      MininingData mininingResult = MininingData.fromJson(miningData);
-      debugPrint(mininingResult.packageName);
-      return mininingResult;
+    final response = await http.post(
+      Uri.parse(endpoint),
+      headers: headers,
+      body: jsonEncode(data),
+    );
+
+    debugPrint(response.statusCode.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      print(userData['pilgrim'][0]['fullName']);
+
+      print(userData);
+      // print(userData["pilgrim"].toString());
+
+      if (userData['pilgrim'][0]['success'].toString() == 'true') {
+        debugPrint('user found');
+
+        User user = User.fromJson(userData);
+
+        await hideProgress();
+        push(
+            context,
+            MyHomePage(
+              user: user,
+            ));
+        return true;
+      }
     }
+    // return user;
   } catch (e) {
-    return 'eror: $e';
+    return 'netowrk';
   }
 }
+
+//login with hajj id loginwithHajjID
+operationLogin(String? email, String? password, BuildContext context) async {
+  // Timer.periodic(const Duration(seconds: 2), (timer) {
+  //   debugPrint(timer.tick.toString());
+  // });
+
+  String endpoint =
+      "$baseUrl/operationslogin.php?username=$email&password=$password";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+
+  try {
+    debugPrint(endpoint);
+    final response = await http.get(
+      Uri.parse(endpoint),
+      headers: headers,
+    );
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+      // print(userData['pilgrim'][0]['user_id']);
+      // print(userData['pilgrim'][0]['name']);
+      // print(userData["pilgrim"].toString());
+      if (userData['pilgrim'][0]['success'].toString() == 'true') {
+        debugPrint('user found');
+
+        OperationsUser userOperation = OperationsUser.fromJson(userData);
+        debugPrint(userOperation.userID);
+        debugPrint(userOperation.name);
+        User user = User.fromJson(userData);
+        await hideProgress();
+        push(
+            context,
+            OperationsScreen(
+              user: userOperation,
+            ));
+        return true;
+      } else {
+        // await hideProgress();
+        // andriodAlertDialogue(context, 'Invalid Email or Password',
+        //     'Please Kindly Input a valid email and password');
+      }
+    }
+    // return user;
+  } catch (e) {
+    await hideProgress();
+    andriodAlertDialogue(context, 'Soemting went wrong', 'Try again later');
+    return 'netowrk';
+  }
+}
+
+searchpilgrim(BuildContext context, String? pilgrimCode) {}
+
+pilgrimminfo(String? email, BuildContext context) async {
+  String endpoint = "$baseUrl/getpilgrim.php";
+
+  Map<String, dynamic> data = {
+    "pilgrimID": email.toString().trim(),
+  };
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+
+  try {
+    debugPrint(endpoint);
+    debugPrint(data.toString());
+
+    final response = await http
+        .post(
+      Uri.parse(endpoint),
+      headers: headers,
+      body: jsonEncode(data),
+    )
+        .timeout(
+      const Duration(seconds: 8),
+      onTimeout: () {
+        hideProgress();
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      print(userData['pilgrim'][0]['fullName']);
+
+      print(userData);
+
+      if (userData['pilgrim'] == null) {
+        debugPrint('pilgrim data null');
+        hideProgress();
+        andriodAlertDialogue(context, 'No Record found,',
+            'Please check and enter Pilgrim Passport NO');
+        return '';
+      } else {
+        User user = User.fromJson(userData);
+
+        return user;
+      }
+      // print(userData["pilgrim"].toString());
+    }
+
+    if (response.statusCode == 201) {
+      debugPrint('pilgrim data null');
+      hideProgress();
+      andriodAlertDialogue(context, 'No Record found,',
+          'Please check and enter Pilgrim Passport NO');
+      return '';
+    }
+    // return user;
+  } catch (e) {
+    return 'netowrk';
+  }
+}
+
+pilgrimminfoBTA(String? email, BuildContext context) async {
+  String endpoint = "$baseUrl/getpilgrim.php";
+
+  Map<String, dynamic> data = {
+    "pilgrimID": email.toString().trim(),
+  };
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+
+  //run to scheck first
+
+  //function to checkw whether bta is already
+  var isGiven = await verifyBTA(email.toString());
+  print('isGive ' + isGiven);
+  if (isGiven == 'yes') {
+    return 'yes';
+  } else {
+    try {
+      debugPrint(endpoint);
+      debugPrint(data.toString());
+
+      final response = await http
+          .post(
+        Uri.parse(endpoint),
+        headers: headers,
+        body: jsonEncode(data),
+      )
+          .timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {
+          hideProgress();
+          andriodAlertDialogue(
+              context,
+              'Operation failed due to slow or no internet access',
+              'Try again later');
+          // Time has run out, do what you wanted to do.
+          return http.Response(
+              'Error', 408); // Request Timeout response status code
+        },
+      );
+
+      debugPrint(response.statusCode.toString());
+
+      if (response.statusCode == 200) {
+        var userData = jsonDecode(response.body);
+
+        print(userData['pilgrim'][0]['fullName']);
+
+        print(userData);
+
+        if (userData['pilgrim'] == null) {
+          debugPrint('pilgrim data null');
+          hideProgress();
+          andriodAlertDialogue(context, 'No Record found,',
+              'Please check and enter Pilgrim Passport NO');
+          return 'wrong';
+        } else {
+          User user = User.fromJson(userData);
+
+          return user;
+        }
+        // print(userData["pilgrim"].toString());
+      }
+
+      if (response.statusCode == 201) {
+        debugPrint('pilgrim data null');
+        hideProgress();
+        andriodAlertDialogue(context, 'No Record found,',
+            'Please check and enter Pilgrim Passport NO');
+        return '';
+      }
+      // return user;
+    } catch (e) {
+      return 'netowrk';
+    }
+  }
+}
+
+Future verifyBTA(String pilgrimId) async {
+  var url = Uri.parse('$baseUrl/api/verifybta.php?pid=$pilgrimId');
+  var response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    print(response.body);
+    var userData = jsonDecode(response.body);
+    print('Is ussed' + userData[0]['issued_bta'].toString());
+
+    if (userData[0]['issued_bta'].toString() == 'yes') {
+      return 'yes';
+    } else {
+      return 'no';
+    }
+  } else {
+    // Request failed
+    print('Request failed with status: ${response.statusCode}.');
+    return '';
+  }
+}
+
+pilgrimminfowithverification(String? email, BuildContext context) async {
+  String endpoint = "$baseUrl/verifyaccomodation.php?pilgrimID=$email";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+
+  try {
+    debugPrint(endpoint);
+
+    final response = await http
+        .get(
+      Uri.parse(endpoint),
+      headers: headers,
+    )
+        .timeout(
+      const Duration(seconds: 8),
+      onTimeout: () {
+        hideProgress();
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      print(userData['pilgrim'][0]['fullName']);
+
+      print(userData);
+
+      if (userData['pilgrim'][0]['is_accomodated'] == true) {
+        return 1;
+      } else if (userData['pilgrim'] == null) {
+        debugPrint('pilgrim data null');
+        hideProgress();
+        andriodAlertDialogue(context, 'No Record found,',
+            'Please check and enter Pilgrim Passport NO');
+        return '';
+      } else {
+        User user = User.fromJson(userData);
+
+        return user;
+      }
+      // print(userData["pilgrim"].toString());
+    }
+
+    if (response.statusCode == 201) {
+      debugPrint('pilgrim data null');
+      hideProgress();
+      andriodAlertDialogue(context, 'No Record found,',
+          'Please check and enter Pilgrim Passport NO');
+      return '';
+    }
+    // return user;
+  } catch (e) {
+    return 'netowrk';
+  }
+}
+
+Future issueBTA(String? pid, btaby, BuildContext context) async {
+  String endpoint = "$baseUrl/issuebtabycode.php?pid=$pid&btaby=$btaby";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+  final client = new HttpClient();
+  client.connectionTimeout = const Duration(seconds: 10);
+
+  try {
+    debugPrint(endpoint);
+    final response = await http
+        .get(
+      Uri.parse(endpoint),
+      headers: headers,
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    await hideProgress();
+    // andriodAlertDialogue(context, 'Soemting went wrong', 'Try again later');
+    return 'netowrk';
+  }
+}
+
+Future allocateRoom(
+    String? pid, ap, fl, room, acb, rid, BuildContext context) async {
+  String endpoint =
+      "$baseUrl/allocateaccomodation.php?pid=$pid&ap=$ap&fl=$fl&room=$room&bed=1&acb=$acb&rid=$rid";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+  final client = new HttpClient();
+  client.connectionTimeout = const Duration(seconds: 10);
+
+  try {
+    debugPrint(endpoint);
+    final response = await http
+        .get(
+      Uri.parse(endpoint),
+      headers: headers,
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    await hideProgress();
+    // andriodAlertDialogue(context, 'Soemting went wrong', 'Try again later');
+    return 'netowrk';
+  }
+}
+
+Future addpilgrimtobus(
+    String? busid, route, pilgrimId, uid, BuildContext context) async {
+  String endpoint =
+      "$baseUrl/addpilgrimtobus.php?bus_id=$busid&route=$route&pilgrimId=$pilgrimId&uid=$uid";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+  final client = new HttpClient();
+  client.connectionTimeout = const Duration(seconds: 10);
+
+  try {
+    debugPrint(endpoint);
+    final response = await http
+        .get(
+      Uri.parse(endpoint),
+      headers: headers,
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+      debugPrint(userData['success'][0]);
+
+      debugPrint(userData);
+      debugPrint(userData[0]['pilgrim']);
+
+      return true;
+    }
+  } catch (e) {
+    await hideProgress();
+    // andriodAlertDialogue(context, 'Soemting went wrong', 'Try again later');
+    // TODO::take care of this return
+    return true;
+  }
+}
+
+Future issueManifest(String? pid, btaby, BuildContext context) async {
+  String endpoint = "$baseUrl/issuemanifest.php?pid=$pid&btaby=$btaby";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+  final client = new HttpClient();
+  client.connectionTimeout = const Duration(seconds: 10);
+
+  try {
+    debugPrint(endpoint);
+    final response = await http
+        .get(
+      Uri.parse(endpoint),
+      headers: headers,
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    await hideProgress();
+    // andriodAlertDialogue(context, 'Soemting went wrong', 'Try again later');
+    return 'netowrk';
+  }
+}
+
+Future flightBoarding(String? pid, btaby, BuildContext context) async {
+  String endpoint = "$baseUrl/issuemanifest.php?pid=$pid&by=$btaby";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+  final client = new HttpClient();
+  client.connectionTimeout = const Duration(seconds: 10);
+
+  try {
+    debugPrint(endpoint);
+    final response = await http
+        .get(
+      Uri.parse(endpoint),
+      headers: headers,
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    await hideProgress();
+    // andriodAlertDialogue(context, 'Soemting went wrong', 'Try again later');
+    return 'netowrk';
+  }
+}
+
+Future addbus(String? name, route, createdby, BuildContext context) async {
+  String endpoint =
+      "$baseUrl/addbus.php?name=$name&route=$route&created_by=$createdby";
+
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+  final client = new HttpClient();
+  client.connectionTimeout = const Duration(seconds: 10);
+
+  try {
+    debugPrint(endpoint);
+    final response = await http
+        .get(
+      Uri.parse(endpoint),
+      headers: headers,
+    )
+        .timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        andriodAlertDialogue(
+            context,
+            'Operation failed due to slow or no internet access',
+            'Try again later');
+        // Time has run out, do what you wanted to do.
+        return http.Response(
+            'Error', 408); // Request Timeout response status code
+      },
+    );
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body.toString());
+
+    if (response.statusCode == 200) {
+      var userData = jsonDecode(response.body);
+
+      String bus = userData[0]['bus'];
+      debugPrint(bus);
+      await hideProgress();
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    await hideProgress();
+    // andriodAlertDialogue(context, 'Soemting went wrong', 'Try again later');
+    return false;
+  }
+}
+
+Future<DashboadBTA> fetchDashboadBTA(String uid) async {
+  DashboadBTA pilgrim;
+
+  final response =
+      await http.get(Uri.parse('$baseUrl/myissuedbta.php?uid=$uid'));
+
+  debugPrint(response.body);
+  debugPrint(response.statusCode.toString());
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    print(jsonDecode(response.body));
+
+    var decodedJson = jsonDecode(response.body);
+
+    List<DashboadBTA> parsePhotos(String responseBody) {
+      final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+      return parsed
+          .map<DashboadBTA>((json) => DashboadBTA.fromJson(json))
+          .toList();
+    }
+
+    parsePhotos(decodedJson);
+
+    return DashboadBTA.fromJson(jsonDecode(response.body));
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load DashboadBTA');
+  }
+}
+
+Future<FetchHotel> fetchAccomodation(String passportNo) async {
+
+  final response = await http
+      .get(Uri.parse('$baseUrl/getaccomodation.php?pilgrimID=$passportNo'));
+
+  debugPrint(response.body);
+  debugPrint(response.statusCode.toString());
+
+  if (response.statusCode == 200) {
+    print(jsonDecode(response.body));
+    var decodedJson = jsonDecode(response.body);
+    FetchHotel hotel = FetchHotel.fromJson(decodedJson);
+    return hotel;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load DashboadBTA');
+  }
+}
+
+// void launchGoogleMaps(latitude, longitude) async {
+//   final String googleMapsUrl =
+//       'https://maps.google.com/?q=$latitude,$longitude';
+//   if (await canLaunch(googleMapsUrl.toString())) {
+//     await launch(googleMapsUrl.toString());
+//   } else {
+//     throw 'Could not launch $googleMapsUrl';
+//   }
+// }
+
+// Future<void> navigateTo(double lat, double lng) async {
+//     var uri = Uri.parse("google.navigation:q=$lat,$lng&mode=c");
+//     android_intent.Intent()
+//       ..setAction(android_action.Action.ACTION_VIEW)
+//       ..setData(uri)
+//       ..setPackage("com.google.android.apps.maps")
+//       ..startActivity().catchError((e) => print(e));
+//   }
+
+Future fetchBTAdata() async {}
 
 Future saveUserCredentials(String? email, String? password) async {
   print('save user details called');

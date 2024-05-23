@@ -1,11 +1,13 @@
 import 'dart:async';
 
-import 'package:btcafarm/functions/functions.dart';
+import 'package:dio/dio.dart';
+import 'package:kadpilgrims/functions/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../main.dart';
-import '../../models/usermodel.dart';
+import 'operationsAuth.dart';
+
+final dio = Dio();
 
 class MyLogin extends StatefulWidget {
   const MyLogin({Key? key}) : super(key: key);
@@ -63,12 +65,12 @@ class _MyLoginState extends State<MyLogin> {
                   top: MediaQuery.of(context).size.height * 0.4),
               child: Column(children: [
                 Image.asset(
-                  'assets/img/btca1.png',
+                  'assets/img/kadpil.png',
                   alignment: Alignment.center,
                   width: 170,
                 ),
                 Text(
-                  'BTCA FARM',
+                  'KADUNA PILGRIMS',
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     fontSize: 27,
@@ -82,59 +84,27 @@ class _MyLoginState extends State<MyLogin> {
                   key: globalFormKey,
                   child: Column(
                     children: [
-                      TextFormField(
-                        textInputAction: TextInputAction.next,
-                        controller: email_,
-                        validator: validateEmail,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          hintText: "Email Address",
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context)
-                                      .accentColor
-                                      .withOpacity(0.2))),
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).accentColor)),
-                          prefixIcon: Icon(
-                            Icons.email,
-                            color: Theme.of(context).accentColor,
-                          ),
-                        ),
-                      ),
                       const SizedBox(
                         height: 10,
                       ),
                       TextFormField(
-                        controller: password_,
-                        validator: validatePassword,
-                        obscureText: hidePassword,
+                        textInputAction: TextInputAction.next,
+                        controller: email_,
+                        validator: validateHajjId,
+                        keyboardType: TextInputType.text,
                         decoration: InputDecoration(
-                          hintText: "Password",
+                          hintText: "Pilgrims Code / Passport No",
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                   color: Theme.of(context)
-                                      .secondaryHeaderColor
+                                      .primaryColor
                                       .withOpacity(0.2))),
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                   color: Theme.of(context).primaryColor)),
                           prefixIcon: Icon(
-                            Icons.lock,
+                            Icons.email,
                             color: Theme.of(context).primaryColor,
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                hidePassword = !hidePassword;
-                              });
-                            },
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.4),
-                            icon: Icon(hidePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility),
                           ),
                         ),
                       ),
@@ -144,13 +114,24 @@ class _MyLoginState extends State<MyLogin> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Sign In',
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontSize: 27,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Sign In',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 27,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              TextButton(
+                                  onPressed: () {
+                                    push(context, OperationsLogin());
+                                  },
+                                  child: Text('Operations Login'))
+                            ],
                           ),
                           CircleAvatar(
                             radius: 30,
@@ -161,8 +142,8 @@ class _MyLoginState extends State<MyLogin> {
                                 if (globalFormKey.currentState?.validate() ??
                                     false) {
                                   globalFormKey.currentState!.save();
-                                  String? password = password_?.text.toString();
                                   String? email = email_?.text.toString();
+                                  print(email);
                                   // print(password);
 
                                   bool stopLogging = true;
@@ -180,16 +161,26 @@ class _MyLoginState extends State<MyLogin> {
                                       context,
                                       'Please wait as we log you into your account',
                                       true);
-                                  var login = await loginWithEmail(
-                                      email, password, context);
+
+                                  // push(
+                                  //     context,
+                                  //     MyHomePage(
+                                  //     ));
+
+
+                                      //temporary 
+                                        timer.cancel();
+                                    stopLogging = false;
+
+                                  var login = 
+                                      await loginwithHajjID(email, context);
 
                                   if (login == true) {
                                     timer.cancel();
                                     stopLogging = false;
 
                                     //set preferences for auto login
-                                    await saveUserCredentials(
-                                        email, password);
+                                    await saveUserCredentials(email, password);
                                     debugPrint('returned true after loggin');
                                   }
 
